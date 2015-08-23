@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "../include/ex_string.h"
 
 char* exstr_dup(const char *str)
@@ -36,6 +37,58 @@ char* exstr_ndup(const char *str, size_t n)
     }
 
     return str_copy;
+}
+
+
+char* exstr_tok_r(char* string,             /* string to break into tokens */
+                  const char * separators,	/* the separators */
+                  char** ppLast             /* pointer to serve as string index */)
+{
+    if((string == NULL) && ((string = *ppLast) == NULL))
+        return (NULL);
+    if (*(string += strspn (string, separators)) == '\0')
+        return (*ppLast = NULL);
+    if ((*ppLast = strpbrk (string, separators)) != NULL)
+        *(*ppLast)++ = '\0';
+    return (string);
+}
+
+int  exstr_split (const char *str, const char *delimiter, char ***parts)
+{
+    char *pch = NULL;
+    char *saveptr = NULL;
+    int i = 0;
+    int cnt = 0;
+    char *tmp = exstr_dup(str);
+    char **result = NULL;
+
+    cnt    = exstr_substr_count(str, delimiter) + 1;
+    *parts = (char**)malloc(sizeof(char**) * cnt);
+    result = *parts;
+
+    pch = exstr_tok_r(tmp, delimiter, &saveptr);
+
+    result[i++] = exstr_dup(pch);
+
+    while (pch) {
+        pch = exstr_tok_r(NULL, delimiter, &saveptr);
+        if (NULL == pch) break;
+        result[i++] = exstr_dup(pch);
+    }
+
+    free(tmp);
+    return i;
+}
+
+void exstr_split_free(char **parts, int cnt)
+{
+    int i = 0;
+
+    for(i = 0; i < cnt; ++i) {
+        free(parts[i]);
+    }
+
+    free(parts);
 }
 
 bool exstr_starts_with(const char *str, const char *start)
@@ -110,6 +163,40 @@ char* exstr_replace(const char *str, const char *sub, const char *replace)
     }
 
     return result;
+}
+
+char* exstr_triml(char *str)
+{
+    int len = strlen(str);
+    char *cur = str;
+
+    while (*cur && isspace(*cur)) {
+        ++cur;
+        --len;
+    }
+
+    if (str != cur) memmove(str, cur, len + 1);
+
+    return str;
+}
+
+char* exstr_trimr(char *str)
+{
+    int len = strlen(str);
+    char *cur = str + len - 1;
+
+    while (cur != str && isspace(*cur)) --cur;
+    cur[isspace(*cur) ? 0 : 1] = '\0';
+
+    return str;
+}
+
+char* exstr_trim(char *str)
+{
+    exstr_trimr(str);
+    exstr_triml(str);
+
+    return str;
 }
 
 const char* exstr_bool(bool value)

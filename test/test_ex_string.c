@@ -22,7 +22,7 @@ void test_exstr_dup(void)
     free(copy);
 }
 
-void test_exexstr_starts_with(void)
+void test_exstr_starts_with(void)
 {
     CU_ASSERT(false == exstr_starts_with("foo", "bar"));
     CU_ASSERT(true == exstr_starts_with("hello", "hello"));
@@ -36,7 +36,7 @@ void test_exexstr_starts_with(void)
     CU_ASSERT(false == exstr_starts_with("hello", "o"));
 }
 
-void test_exexstr_ends_with(void)
+void test_exstr_ends_with(void)
 {
     CU_ASSERT(false == exstr_ends_with(NULL, NULL));
     CU_ASSERT(false == exstr_ends_with("hello", "hello world"));
@@ -51,13 +51,28 @@ void test_exexstr_ends_with(void)
     CU_ASSERT(true == exstr_ends_with("hello", "hello"));
 }
 
+void test_exstr_split(void)
+{
+    char str[] = "0 1 2 3 4 5 6 7 8 9 10 11 12";
+    char **parts = NULL;
+    int size = exstr_split(str, " ", &parts);
+    int i = 0;
+
+    for (; i < size; ++i) {
+        CU_ASSERT(i == atoi(parts[i]));
+    }
+
+    exstr_split_free(parts, size);
+}
+
 void add_test_ex_string(void)
 {
     CU_pSuite suite = NULL;
 
     suite = CU_add_suite("ex_string", NULL, NULL);
     CU_add_test(suite, "exstr_dup", test_exstr_dup);
-    CU_add_test(suite, "exstr_starts_with", test_exexstr_starts_with);
-    CU_add_test(suite, "exstr_ends_with", test_exexstr_ends_with);
+    CU_add_test(suite, "exstr_starts_with", test_exstr_starts_with);
+    CU_add_test(suite, "exstr_ends_with", test_exstr_ends_with);
+    CU_add_test(suite, "exstr_split", test_exstr_split);
 }
 

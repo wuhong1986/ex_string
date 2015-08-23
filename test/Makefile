@@ -1,10 +1,10 @@
 CFLAGS = -std=c99 -Wall
 
 test: ../src/ex_string.o test_ex_string.o test_main.o
-	$(CC) $^ -o $@ -lcunit
+	$(CC) $^ -g -o $@ -lcunit
 
 %.o: %.c
-	$(CC) $< -c -o $@ $(CFLAGS)
+	$(CC) $< -g -c -o $@ $(CFLAGS)
 
 clean:
 	rm -f test *.o
